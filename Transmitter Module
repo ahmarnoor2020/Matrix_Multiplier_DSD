@@ -1,0 +1,25 @@
+module uart_transmitter (
+    input clk,
+    input rst,
+    output reg tx_data,       // Data being sent out via UART
+    output reg tx_status,     // Transmission status (busy or ready)
+    input [15:0] matrix_c[0:8],  // Matrix C (3x3 result)
+    input start               // Start transmission when matrix multiplication is complete
+);
+    reg [7:0] current_data;  // Current data to send
+    reg [3:0] counter = 0;    // Counter to track the data position
+    
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            tx_status <= 0;
+            counter <= 0;
+        end else if (start && counter < 9) begin
+            tx_status <= 1;  // Set transmission status as busy
+            current_data <= matrix_c[counter][7:0];  // Load the lower byte of matrix_c
+            tx_data <= current_data;  // Send the current data byte
+            counter <= counter + 1;    // Move to next data point
+        end else begin
+            tx_status <= 0;  // Set transmission status as ready when done
+        end
+    end
+endmodule
