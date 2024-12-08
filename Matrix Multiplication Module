@@ -1,0 +1,24 @@
+module matrix_multiplication (
+    input clk,
+    input rst,
+    input [7:0] a[0:8],      // 3x3 matrix A (1D array of 9 elements)
+    input [7:0] b[0:8],      // 3x3 matrix B (1D array of 9 elements)
+    output reg [15:0] c[0:8] // 3x3 matrix C (1D array of 9 elements, 16-bit wide for result)
+);
+    integer i, j;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            for (i = 0; i < 9; i = i + 1) begin
+                c[i] <= 16'd0; // Reset matrix C to zero on reset
+            end
+        end else begin
+            // Matrix multiplication
+            for (i = 0; i < 3; i = i + 1) begin
+                for (j = 0; j < 3; j = j + 1) begin
+                    c[i*3 + j] <= a[i*3] * b[j] + a[i*3 + 1] * b[j + 3] + a[i*3 + 2] * b[j + 6];
+                end
+            end
+        end
+    end
+endmodule
