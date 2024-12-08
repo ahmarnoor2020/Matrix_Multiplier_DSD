@@ -1,0 +1,98 @@
+module tb_matrix_multiplication_with_uart;
+
+    // Testbench signals
+    reg clk;
+    reg rst;
+    reg [7:0] rx_data;
+    reg rx_ready;
+    wire tx_data;
+    wire tx_status;
+    wire [7:0] debug_data;
+    wire multiplication_done;  // Add the multiplication_done wire
+
+    // Instantiate the DUT (Device Under Test)
+    matrix_multiplication_with_uart uut (
+        .clk(clk),
+        .rst(rst),
+        .rx_data(rx_data),
+        .rx_ready(rx_ready),
+        .tx_data(tx_data),
+        .tx_status(tx_status),
+        .debug_data(debug_data),
+        .multiplication_done(multiplication_done)  // Connect multiplication_done
+    );
+
+    // Clock generation
+    always begin
+        #5 clk = ~clk; // Clock period = 10 ns
+    end
+
+    // Testbench stimulus
+    initial begin
+        // Initialize signals
+        clk = 0;
+        rst = 0;
+        rx_data = 0;
+        rx_ready = 0;
+
+        // Open VCD file for waveform dump
+        $dumpfile("dump.vcd");   // Name of the VCD file
+        $dumpvars(0, tb_matrix_multiplication_with_uart);  // Dump all signals in this testbench
+
+        // Apply reset
+        rst = 1;
+        #10 rst = 0;
+
+        // Apply data to rx_data and simulate UART ready
+        rx_ready = 1;
+        
+        // Simulate receiving matrix_a (3x3 matrix as 9 elements)
+        rx_data = 8'd1; #10;
+        rx_data = 8'd2; #10;
+        rx_data = 8'd3; #10;
+        rx_data = 8'd4; #10;
+        rx_data = 8'd5; #10;
+        rx_data = 8'd6; #10;
+        rx_data = 8'd7; #10;
+        rx_data = 8'd8; #10;
+        rx_data = 8'd9; #10;
+
+        // Simulate receiving matrix_b (3x3 matrix as 9 elements)
+        rx_data = 8'd9; #10;
+        rx_data = 8'd8; #10;
+        rx_data = 8'd7; #10;
+        rx_data = 8'd6; #10;
+        rx_data = 8'd5; #10;
+        rx_data = 8'd4; #10;
+        rx_data = 8'd3; #10;
+        rx_data = 8'd2; #10;
+        rx_data = 8'd1; #10;
+
+        // Wait for matrix multiplication to finish
+        wait(uut.multiplication_done == 1);  // Wait for multiplication to be done
+        $display("Matrix multiplication complete, displaying results.");
+        $display("Matrix A:");
+        $display("A[0] = %d, A[1] = %d, A[2] = %d", uut.matrix_a[0], uut.matrix_a[1], uut.matrix_a[2]);
+        $display("A[3] = %d, A[4] = %d, A[5] = %d", uut.matrix_a[3], uut.matrix_a[4], uut.matrix_a[5]);
+        $display("A[6] = %d, A[7] = %d, A[8] = %d", uut.matrix_a[6], uut.matrix_a[7], uut.matrix_a[8]);
+
+        $display("Matrix B:");
+        $display("B[0] = %d, B[1] = %d, B[2] = %d", uut.matrix_b[0], uut.matrix_b[1], uut.matrix_b[2]);
+        $display("B[3] = %d, B[4] = %d, B[5] = %d", uut.matrix_b[3], uut.matrix_b[4], uut.matrix_b[5]);
+        $display("B[6] = %d, B[7] = %d, B[8] = %d", uut.matrix_b[6], uut.matrix_b[7], uut.matrix_b[8]);
+
+        // Display the final matrix multiplication result (matrix_c)
+        $display("Matrix C (Multiplication Result):");
+        $display("C[0] = %d, C[1] = %d, C[2] = %d", uut.matrix_c[0], uut.matrix_c[1], uut.matrix_c[2]);
+        $display("C[3] = %d, C[4] = %d, C[5] = %d", uut.matrix_c[3], uut.matrix_c[4], uut.matrix_c[5]);
+        $display("C[6] = %d, C[7] = %d, C[8] = %d", uut.matrix_c[6], uut.matrix_c[7], uut.matrix_c[8]);
+
+        // Finish test
+        $finish;
+    end
+    
+    // Monitor the outputs
+    initial begin
+        $monitor("At time %t, tx_data = %b, tx_status = %b, debug_data = %d", $time, tx_data, tx_status, debug_data);
+    end
+endmodule
