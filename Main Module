@@ -1,0 +1,103 @@
+module matrix_multiplication_with_uart (
+    input clk,
+    input rst,
+    input [7:0] rx_data,
+    input rx_ready,
+    output reg tx_data,
+    output reg tx_status,
+    output [7:0] debug_data,
+    output reg multiplication_done   // Add multiplication_done signal
+);
+    wire [7:0] matrix_a [0:8];
+    wire [7:0] matrix_b [0:8];
+    wire [15:0] matrix_c [0:8];
+    reg start_transmission;
+
+    // Instantiate UART receiver to receive Matrix A and Matrix B
+    uart_receiver uart_rx (
+        .clk(clk),
+        .rst(rst),
+        .rx_data(rx_data),
+        .rx_ready(rx_ready),
+        .matrix_a(matrix_a),
+        .matrix_b(matrix_b)
+    );
+
+    // Matrix multiplication module
+    matrix_multiplication matrix_mult (
+        .clk(clk),
+        .rst(rst),
+        .a(matrix_a),
+        .b(matrix_b),
+        .c(matrix_c)
+    );
+
+    // UART transmitter to send Matrix C
+    uart_transmitter uart_tx (
+        .clk(clk),
+        .rst(rst),
+        .tx_data(tx_data),
+        .tx_status(tx_status),
+        .matrix_c(matrix_c),
+        .start(start_transmission)
+    );
+
+    // Monitor the completion of matrix multiplication and signal multiplication_done
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            multiplication_done <= 0; // Reset multiplication_done signal
+        end else begin
+            // Set multiplication_done when multiplication is completed (assuming valid data in matrix_c)
+            if (matrix_c[8] != 16'd0) begin
+                multiplication_done <= 1;
+                $display("Matrix multiplication is complete.");
+            end else begin
+                multiplication_done <= 0;
+            end
+        end
+    end
+
+    // Display received data for debugging
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            $display("Resetting system...");
+        end else if (rx_ready) begin
+            $display("Data received: rx_data = %d", rx_data);
+           
+        end
+    end
+
+    // Control the start of transmission after multiplication is done
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            start_transmission <= 0;
+        end else begin
+            if (multiplication_done) begin
+                start_transmission <= 1;
+                $display("Matrix multiplication completed, starting transmission of Matrix C...");
+            end else begin
+                start_transmission <= 0;
+            end
+        end
+    end
+
+    // Debugging the transmission process
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            $display("Resetting the transmission.");
+        end else if (start_transmission) begin
+            $display("Transmission started, sending Matrix C data...");
+        end else begin
+            $display("Waiting for transmission to start...");
+        end
+    end
+
+    // Final display to show multiplication status
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            $display("System Reset.");
+        end else if (multiplication_done) begin
+            $display("Multiplication done, sending results.");
+        end
+    end
+endmodule
