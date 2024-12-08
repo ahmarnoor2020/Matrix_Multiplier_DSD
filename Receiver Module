@@ -1,0 +1,26 @@
+module uart_receiver (
+    input clk,
+    input rst,
+    input [7:0] rx_data,    // Data coming from UART
+    input rx_ready,         // Data is ready to be received
+    output reg [7:0] matrix_a[0:8], // Matrix A received
+    output reg [7:0] matrix_b[0:8]  // Matrix B received
+);
+    reg [3:0] counter_a = 0, counter_b = 0; // Counter for matrix_a and matrix_b
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            counter_a <= 0;
+            counter_b <= 0;
+        end else if (rx_ready) begin
+            if (counter_a < 9) begin
+                matrix_a[counter_a] <= rx_data; // Store data in matrix_a
+                counter_a <= counter_a + 1;
+            end else if (counter_b < 9) begin
+                matrix_b[counter_b] <= rx_data; // Store data in matrix_b
+                counter_b <= counter_b + 1;
+            end
+        end
+    end
+endmodule
+
