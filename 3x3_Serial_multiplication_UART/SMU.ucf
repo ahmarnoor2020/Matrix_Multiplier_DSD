@@ -1,0 +1,25 @@
+# Clock
+NET "clk" LOC = "V10" | IOSTANDARD = LVCMOS33;
+
+# Reset
+NET "rst" LOC = "B8" | IOSTANDARD = LVCMOS33;
+
+# 7-Segment Segments
+NET "seg[0]" LOC = "T17" | IOSTANDARD = LVCMOS33;  # Segment A
+NET "seg[1]" LOC = "T18" | IOSTANDARD = LVCMOS33;  # Segment B
+NET "seg[2]" LOC = "U17" | IOSTANDARD = LVCMOS33;  # Segment C
+NET "seg[3]" LOC = "U18" | IOSTANDARD = LVCMOS33;  # Segment D
+NET "seg[4]" LOC = "M14" | IOSTANDARD = LVCMOS33;  # Segment E
+NET "seg[5]" LOC = "N14" | IOSTANDARD = LVCMOS33;  # Segment F
+NET "seg[6]" LOC = "L14" | IOSTANDARD = LVCMOS33;  # Segment G
+NET "dp" LOC = "M13" | IOSTANDARD = LVCMOS33;      # Decimal Point
+
+# 7-Segment Digit Enable
+NET "an[0]" LOC = "N16" | IOSTANDARD = LVCMOS33;  # Digit 1
+NET "an[1]" LOC = "N15" | IOSTANDARD = LVCMOS33;  # Digit 2
+NET "an[2]" LOC = "P18" | IOSTANDARD = LVCMOS33;  # Digit 3
+NET "an[3]" LOC = "P17" | IOSTANDARD = LVCMOS33;  # Digit 4
+NET "switches[0]" LOC = "T10" | IOSTANDARD = LVCMOS33;
+NET "switches[1]" LOC = "T9" | IOSTANDARD = LVCMOS33;
+NET "switches[2]" LOC = "V9" | IOSTANDARD = LVCMOS33;
+NET "switches[3]" LOC = "M8" | IOSTANDARD = LVCMOS33;
